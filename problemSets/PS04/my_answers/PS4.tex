@@ -99,8 +99,7 @@ help(Prestige)
 	\item [(a)]
 	Create a new variable \texttt{professional} by recoding the variable \texttt{type} so that professionals are coded as $1$, and blue and white collar workers are coded as $0$ (Hint: \texttt{ifelse}).
 	
-			\lstinputlisting[language=R, firstline=1, lastline=12]{PS04.R} 
-	\vspace{6cm}
+						\lstinputlisting[language=R, firstline=1, lastline=5]{PS4.R} 
 	
 	
 	\item [(b)]
@@ -137,41 +136,69 @@ help(Prestige)
 			\hline \\[-1.8ex] 
 			\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
 		\end{tabular} 
-	\end{table}
+	\end{table} 
 	\vspace{6cm}
+	\newpage
 	\item [(c)]
 	Write the prediction equation based on the result.
+\[
+\hat{\text{prestige}} = 21.1423 + 0.0032 \cdot \text{income} + 37.7813 \cdot \text{professional} - 0.0023 \cdot (\text{income} \cdot \text{professional}) + \epsilon
+\]
+
 	
-\[
-\text{prestige} = \beta_0 + \beta_1 \cdot \text{income} + \beta_2 \cdot \text{professional} + \beta_3 \cdot (\text{income} \cdot \text{professional})
-\]
-
-\[
-\text{prestige} = 21.1423 + 0.0032 \cdot \text{income} + 37.7813 \cdot \text{professional} - 0.0023 \cdot (\text{income} \cdot \text{professional})
-\]
-
-\newpage
 	\item [(d)]
 	Interpret the coefficient for \texttt{income}.
 	
-	The coefficient of 0.0032 suggests that, among non-professionals, higher income is associated with higher prestige. However, the interaction term indicates this positive effect of income on prestige is less pronounced for professionals than for non-professionals.
-	
-	\vspace{10cm}	
+	 According to Table 1, for each one unit increase in income, the prestige level increases by 0.0032 percentage points. This is when the 'professional' level is zero. 
+	 
+	\vspace{.5cm}	
 	\item [(e)]
 	Interpret the coefficient for \texttt{professional}.
 	
-	The coefficient of 37.78 suggests that being in a professional occupation is associated with a substantially higher prestige score than being in a non-professional occupation, controlling for income. This reflects a strong baseline prestige advantage for professionals in the model.
+	According to Table 1, there is a strong positive coefficient for professional occuations. This means that  professional occupations (those equal to one) are associated with a significantly higher prestige, 37.781***, or 38 percentage points, than non-professional ones.
 	
 	\newpage
 	\item [(f)]
 	What is the effect of a \$1,000 increase in income on prestige score for professional occupations? In other words, we are interested in the marginal effect of income when the variable \texttt{professional} takes the value of $1$. Calculate the change in $\hat{y}$ associated with a \$1,000 increase in income based on your answer for (c).
-
-	\vspace{10cm}
+	
+	To attain the marginal effect of income we need to calculate the partial derivative of the prediction equation which is as follows: 
+	
+	\[
+	\frac{\partial \hat{y}}{\partial \text{income}} = \beta_{\text{income}} + \beta_{\text{income}:\text{professional}} \cdot \text{professional}
+	\]
+	
+	This becomes: 
+	\[
+	\Delta \hat{y} = (0.00317 + (-0.00232)) \cdot 1000 = 0.8452
+	\]
+	
+	
+	This result indicates that, for professionals, a 1,000 increase in income is associated with an increase of about 0.85 percentage points in the prestige score. 
+	
+		\lstinputlisting[language=R, firstline=20, lastline=28]{PS4.R} 
+	\vspace{1cm}
 	
 	
 	\item [(g)]
 	What is the effect of changing one's occupations from non-professional to professional when her income is \$6,000? We are interested in the marginal effect of professional jobs when the variable \texttt{income} takes the value of $6,000$. Calculate the change in $\hat{y}$ based on your answer for (c).
 	
+	Here we need to know the difference when professional changes from the value 0 to the value 1 when income has the value $6,000$ 
+	The effect of switching to professional requires the difference between the predicted values of professional to non-professional. We can use the following equation to determine this: 
+	\[
+	\Delta \hat{y} = \hat{y}_{\text{professional}} - \hat{y}_{\text{non-professional}}
+	\]
+	We can enter the coefficients from the table and it becomes: 
+	\[
+	\Delta \hat{y} = \hat{y}_{\text{professional}} - \hat{y}_{\text{non-professional}} = 37.781 + (-0.00232 \cdot 6000) = 23.861
+	\]
+	
+		We can therefore conclude that when income is 6,000 dollars per annum, the prestige score increases by 23.98 percentage points if the person switches to a professional occupation.
+		
+			\lstinputlisting[language=R, firstline=32, lastline=38]{PS4.R} 
+	
+	
+	
+
 	
 \end{enumerate}
 
@@ -207,16 +234,77 @@ a precinct that was adjacent to a precinct in the treatment group (since people 
 \begin{enumerate}
 	\item [(a)] Use the results from a linear regression to determine whether having these yard signs in a precinct affects vote share (e.g., conduct a hypothesis test with $\alpha = .05$).
 	
-	\newpage		
+	I will use a Student's t-test and I am interested in the partial effect of one individual regression coefficient. I want to know if having yard signs in a precinct effects the vote share.  
+	
+	\textbf{Null Hypothesis} (\( H_0 \)): The coefficient is zero, meaning that yard signs have no effect on vote share (for Cuccinelli) in the precincts where they were posted.
+	
+	\[
+	H_0: \beta = 0
+	\]
+	
+	\textbf{Alternative Hypothesis} (\( H_1 \)): The coefficient is not zero, meaning that yard signs do affect the vote share in those precincts.
+	
+	\[
+	H_1: \beta \neq 0
+	\]
+	
+	The \( t \)-statistic for testing whether a coefficient is significantly different from zero is calculated as:
+	
+\[
+t = \frac{\hat{\beta_j}}{\text{SE}(\hat{\beta_j})}
+\]
+
+	In the case of this regression, we can calculate the t-statistic using the above formula: 
+	\[
+	t = \frac{0.042}{0.016} = 2.625
+	\]
+	
+	Since our calculated \( t \)-statistic is 2.625, which exceeds the critical value of 1.96, we can reject the null hypothesis. This implies that the presence of yard signs in a precinct has a statistically significant effect on the vote share for Cuccinelli at the 0.05 significance level, suggesting that the signs likely influenced voting behavior.
+	
+
 	\item [(b)]  Use the results to determine whether being
 	next to precincts with these yard signs affects vote
 	share (e.g., conduct a hypothesis test with $\alpha = .05$).
 	
-	\vspace{7cm}
+	Similarly to the previous question,	I will use a Student's t-test as I am interested in the partial effect of one individual regression coefficient. I want to know  whether being adjacent to precincts with yard signs affects vote share.  
+	
+	Step 1: Set up the Null 
+	
+		\textbf{Null Hypothesis} (\( H_0 \)): The coefficient is zero, meaning that being adjacent to precincts with yard signs has no effect on Cuccinelli’s vote share.
+	
+	\[
+	H_0: \beta = 0
+	\]
+		\textbf{Alternative Hypothesis} (\( H_1 \)): The coefficient is not zero, meaning that being adjacent to precincts with yard signs does affect Cuccinelli’s vote share.
+	
+	\[
+	H_1: \beta \neq 0
+	\]
+	 
+	 As above, 	the \( t \)-statistic for testing whether a coefficient is significantly different from zero is calculated as:
+	 
+	 \[
+	 t = \frac{\hat{\beta_j}}{\text{SE}(\hat{\beta_j})}
+	 \]
+	 
+	 We can calculate the t-statistic using the above formula: 
+	 \[
+	 t = \frac{0.042}{0.013} = 3.231
+	 \]
+	 
+	 Once again, we observe a t-statistic of 3.231, which is greater than the critical value of 1.96, so we reject the null hypothesis. This suggests that being adjacent to precincts with yard signs has a statistically significant effect on Cuccinelli’s vote share.
+	 
+	\vspace{1cm}
 	\item [(c)] Interpret the coefficient for the constant term substantively.
-	\vspace{7cm}
+	
+	The constant is 0.302 with a standard error of 0.011. This tells us the baseline vote share for Ken Cuccinelli without there being any effect from the signs placed against his opponent, McAuliff. The baseline vote share tells us that within presincts that do not have any signs against McAuliff in place, Cucinelli can expect to recieve 30.2 percent of the vote share. This is further supported by the low standard error term beneath it (0.011)
+	
+	\vspace{1cm}
 	
 	\item [(d)] Evaluate the model fit for this regression.  What does this	tell us about the importance of yard signs versus other factors that are not modeled?
+		\vspace{.5cm}
+	To evaluate the goodness of fit for this model, I'll first examine the \( R^2 \), which in this case is \textbf{0.094}. This indicates that the model explains approximately \textbf{9.4\% of the variation in vote share}. This relatively low \( R^2 \) suggests that a large portion of the variation in vote share remains unexplained by the model. This means that there are probably a large number of other factors that explain varience in Cucinelli's vote share perhaps with greater precision than the anti-McAuliff signs. For example, a strong canvassing campaign, hisorical family association, etc. 
+	
 	
 \end{enumerate}  
 
